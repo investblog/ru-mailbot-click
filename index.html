@@ -1,0 +1,1860 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; base-uri 'self'; form-action 'none'; object-src 'none'">
+  <meta name="yandex-verification" content="8553f86a194ec0d0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MailBot — одноразовая почта в Telegram</title>
+  <meta name="description" content="Одноразовая почта прямо в Telegram. Жми /start, получай адрес — всё, что на него придёт, прилетит в чат, OTP-код первой строкой. Адрес живёт 24 часа и протухает сам. Письма не храним.">
+
+  <!-- OG / Twitter. Values below are the EN dev fallback: the build rewrites every
+       host-dependent one per locale (scripts/lib/site.mjs applyHead). The card itself is
+       rendered by scripts/build-og.mjs into /og/. -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="MailBot">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:url" content="https://ru.mailbot.click/">
+  <meta property="og:title" content="MailBot — одноразовая почта в Telegram">
+  <meta property="og:description" content="Одноразовая почта прямо в Telegram. OTP-код первой строкой. Живёт 24 часа. Ничего не храним.">
+  <meta property="og:image" content="https://ru.mailbot.click/og/index.ru.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="MailBot — одноразовая почта в Telegram">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://ru.mailbot.click/og/index.ru.png">
+  <meta name="twitter:image:alt" content="MailBot — одноразовая почта в Telegram">
+  <meta name="theme-color" content="#111111">
+
+  <!-- Favicons: svg for modern browsers, ico/png for crawlers and result pages (npm run favicons) -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-96x96.png" type="image/png" sizes="96x96">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+
+  <!-- CSS -->
+  <style>/* theme.css */
+/* =========================
+   301.st – THEME TOKENS
+   - Цвета
+   - Типографика
+   - Базовые переменные
+   ========================= */
+
+/*!
+ * UI System 1.0 — Unified control recipe
+ * This file defines the single source of truth for control sizing.
+ * All interactive components MUST consume these tokens. Do not override
+ * padding/height in variants (primary/ghost/danger/social/chips).
+ */
+
+:root {
+  color-scheme: dark;
+
+  /* Blues (primary brand) */
+  --blue-900: #003682;
+  --blue-700: #0055DC;
+  --blue-500: #3475C0;
+  --blue-300: #408BC9;
+  --blue-neon: #4DA3FF;
+
+  /* Oranges (Cloudflare-ish family) */
+  --orange-500: #F48120;
+  --orange-700: #F38020;
+  --orange-900: #C65000;
+
+  /*
+    Cloudflare CTA accent.
+
+    Chosen to keep CF vibe but pass WCAG AA with WHITE text:
+    - #C24F00 on #FFFFFF ≈ 4.76:1
+    - #C24F00 on #000000 ≈ 4.41:1
+  */
+  --accent-cf: #C24F00;
+  --accent-cf-hover: #E05A00;
+  --accent-cf-soft: rgba(244, 129, 32, 0.16);
+
+  /* Neutrals */
+  --gray-950: #000000;
+  --gray-900: #111111;
+  --gray-800: #222222;
+  --gray-700: #333333;
+  --gray-600: #404242;
+  --gray-500: #424242;
+  --gray-400: #808080;
+
+  --gray-50:  #F8FBFB;
+  --gray-100: #F7F7F8;
+  --gray-200: #F4F8FC;
+  --gray-250: #EAEBEB;
+  --gray-300: #E5E5E4;
+  --gray-350: #CAC8C8;
+
+  /* Semantic */
+  --danger: #FF4F6E;
+  --success: #18C27A;
+  --warning: #FFB347;
+  --info: #3B82F6;
+
+  /* Typography */
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Segoe UI", sans-serif;
+
+  /* Base type scale */
+  --fs-body: 1rem;
+  --lh-body: 1.5;
+
+  /* Unified control system — font-driven sizing */
+  --fs-control: clamp(0.94rem, 0.92rem + 0.2vw, 0.98rem);
+  --lh-control: 1.25;
+
+  /* Control spacing (relative, no px) */
+  --control-pad-y: 0.35em;
+  --control-pad-x: 0.90em;
+  --border-1: 1px;
+  --indicator-thickness: 1px; /* For loading bar & global notice border */
+  --control-min-height: calc(
+    1em * var(--lh-control) +
+    2 * var(--control-pad-y) +
+    2 * var(--border-1)
+  );
+
+  /* Radius & layout spacing */
+  --r-pill: 999px;
+  --r-field: 0.75rem;
+  --control-radius: var(--r-pill);
+  --inline-gap: 0.5rem;
+  --stack-gap: 0.75rem;
+
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.875rem;
+  --fs-md: 1rem;
+  --fs-lg: 1.125rem;
+  --fs-xl: 1.375rem;
+  --fs-2xl: 1.75rem;
+
+  --fw-normal: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  /* Spacing & radii */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+
+  /* Control sizing */
+  --control-scale-sm: 0.9;
+  --control-scale-md: 1;
+  --control-scale-lg: 1.1;
+
+  --radius-md: var(--radius);
+
+  --radius-xs: 0.25rem;
+  --radius: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  --border-width-thin: 1px;
+  --border-width-strong: 1px;
+
+  --shadow-sm-light: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md-light: 0 6px 18px rgba(0, 0, 0, 0.12);
+  --shadow-lg-light: 0 18px 45px rgba(0, 0, 0, 0.25);
+
+  --shadow-sm-dark: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-md-dark: 0 6px 18px rgba(0, 0, 0, 0.45);
+  --shadow-lg-dark: 0 18px 45px rgba(0, 0, 0, 0.65);
+
+  --shadow-sm: var(--shadow-sm-light);
+  --shadow-md: var(--shadow-md-light);
+  --shadow-lg: var(--shadow-lg-light);
+
+  --shadow-soft:   0 1px 3px  color-mix(in srgb, var(--gray-900) 18%, transparent),
+                   0 1px 2px  color-mix(in srgb, var(--gray-900) 22%, transparent);
+  --shadow-subtle: 0 3px 6px  color-mix(in srgb, var(--gray-900) 16%, transparent),
+                   0 1px 4px  color-mix(in srgb, var(--gray-900) 20%, transparent);
+
+  --border-width: 1px;
+  --border-style: solid;
+
+  --transition-fast: 120ms ease-out;
+  --transition-md: 160ms ease-out;
+
+  /* Z-index scale - ascending order */
+  --z-base: 1;           /* Base elevated elements (utility-bar) */
+  --z-indicator: 2;      /* Visual indicators (loading-bar, logo overlay) */
+  --z-elevated: 10;      /* Elevated UI elements */
+  --z-dropdown: 20;      /* Dropdowns, popovers */
+  --z-sticky: 30;        /* Sticky headers */
+  --z-global-notice: 100; /* Global alerts (covers utility-bar content) */
+  --z-sidebar: 100;      /* Sidebar navigation */
+  --z-sidebar-overlay: 99; /* Sidebar backdrop */
+  --z-header: 200;       /* Main header (above sidebar) */
+  --z-drawer: 1000;      /* Drawers base (stacked: +10 per level via drawer-manager) */
+  --z-modal: 2000;       /* Modals, dialogs (above all drawers) */
+  --z-toast: 2100;       /* Toast notifications (above modals) */
+  --z-tooltip: 2200;     /* Tooltips (topmost) */
+
+  /* High-contrast text for buttons / chips on dark backgrounds */
+  --btn-text-on-dark: #FFFFFF;
+  --btn-text-on-bright: #111111;
+}
+
+/* DARK THEME – default */
+:root[data-theme="dark"] {
+  --bg: #111111;
+  --bg-elevated: #181A1F;
+  --bg-soft: #1F2229;
+
+  --panel: var(--bg-elevated);
+
+  --panel-border: color-mix(in srgb, var(--gray-100) 22%, transparent);
+
+  --text-main: #E7E9EE;
+  --text-muted: #A0A4AF;
+  --text-subtle: #8B8F98;
+  --text-invert: #FFFFFF;
+
+  --text: var(--text-main);
+  --muted: var(--text-muted);
+
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --shadow-sm: var(--shadow-sm-dark);
+  --shadow-md: var(--shadow-md-dark);
+  --shadow-lg: var(--shadow-lg-dark);
+  --shadow-soft:   0 1px 3px  color-mix(in srgb, var(--gray-700) 14%, var(--blue-900) 8%),
+                   0 1px 2px  color-mix(in srgb, var(--gray-700) 18%, var(--blue-900) 6%);
+
+  --shadow-subtle: 0 3px 6px  color-mix(in srgb, var(--gray-700) 12%, var(--blue-900) 10%),
+                   0 1px 4px  color-mix(in srgb, var(--gray-700) 16%, var(--blue-900) 8%);
+  /*
+    Primary uses blue-500:
+    - #3475C0 with white text ≈ 4.72:1 (AA for normal text).
+  */
+  --primary: #fe4622; /* brand accent из лого MailBot */
+  --primary-soft: rgba(254, 70, 34, 0.12);
+  --primary-hover: #ff6a4d;
+  --tg: #355ff5; /* второй акцент (синий из лого) — CTA «Открыть в Telegram» */
+  --tg-hover: #5a7bff;
+
+  --ok: var(--success);
+
+  --brand: var(--primary);
+
+  /*
+    Cloudflare accent = shared accent-cf.
+    White text passes AA.
+  */
+  --accent-cf-bg: var(--accent-cf);
+  --accent-cf-bg-hover: var(--accent-cf-hover);
+
+  /* Status backgrounds (solid for predictable contrast) */
+  --danger-bg: #3D0915;
+  --success-bg: #042C1C;
+  --warning-bg: #38240A;
+
+  --notice-success-bg: color-mix(in srgb, var(--ok) 22%, var(--bg-soft));
+  --notice-success-fg: color-mix(in srgb, var(--ok) 85%, #ffffff 15%);
+  --notice-error-bg: color-mix(in srgb, var(--danger) 26%, var(--bg-soft));
+  --notice-error-fg: color-mix(in srgb, var(--danger) 86%, #ffffff 12%);
+  --notice-info-bg: color-mix(in srgb, var(--brand) 30%, var(--bg-soft));
+  --notice-info-fg: color-mix(in srgb, var(--brand) 30%, var(--text-main) 70%);
+
+  --input-bg: rgba(15, 16, 22, 0.9);
+  --input-border: var(--border-subtle);
+  --input-border-focus: rgba(77, 163, 255, 0.8);
+
+  --nav-bg: rgba(11, 13, 18, 0.96);
+  --sidebar-bg: #101219;
+}
+
+/* LIGHT THEME */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #FFFFFF;
+  --bg-elevated: #F7F7F8;
+  --bg-soft: #F4F8FC;
+
+  --panel: var(--bg-elevated);
+
+  --panel-border: color-mix(in srgb, var(--gray-900) 18%, transparent);
+
+  --text-main: #111111;
+  --text-muted: #666A73;
+  --text-subtle: #6E7580;
+  --text-invert: #FFFFFF;
+
+  --text: var(--text-main);
+  --muted: var(--text-muted);
+
+  --border-subtle: rgba(15, 23, 42, 0.06);
+  --border-strong: rgba(15, 23, 42, 0.16);
+  --shadow-sm: var(--shadow-sm-light);
+  --shadow-md: var(--shadow-md-light);
+  --shadow-lg: var(--shadow-lg-light);
+
+  /*
+    Primary uses blue-700:
+    - #0055DC with white text ≈ 6.30:1 (AA).
+  */
+  --primary: #fe4622; /* brand accent из лого MailBot */
+  --primary-soft: rgba(254, 70, 34, 0.10);
+  --primary-hover: #d8390f; /* darker для контраста на светлой теме */
+  --tg: #355ff5; /* второй акцент (синий из лого) — CTA «Открыть в Telegram» */
+  --tg-hover: #2347d6;
+
+  --brand: var(--primary);
+
+  /* Semantic overrides — AA 4.5:1 on white */
+  --danger: #D9264A;
+  --success: #0E7B4C;
+  --warning: #9A6200;
+  --info: #2563EB;
+  --ok: var(--success);
+
+  /*
+    Cloudflare accent = same accent-cf to keep brand consistent.
+  */
+  --accent-cf-bg: var(--accent-cf);
+  --accent-cf-bg-hover: var(--accent-cf-hover);
+
+  --danger-bg: #FDE6EA;
+  --success-bg: #E0F7EE;
+  --warning-bg: #FFF1D8;
+
+  --notice-success-bg: color-mix(in srgb, var(--ok) 15%, var(--bg-soft));
+  --notice-success-fg: color-mix(in srgb, var(--ok) 70%, #0f1a0f 30%);
+  --notice-error-bg: color-mix(in srgb, var(--danger) 16%, #FFFFFF);
+  --notice-error-fg: color-mix(in srgb, var(--danger) 72%, #0f0f0f 28%);
+  --notice-info-bg: color-mix(in srgb, var(--brand) 14%, var(--bg-soft));
+  --notice-info-fg: color-mix(in srgb, var(--brand) 68%, #0b182c 32%);
+
+  --input-bg: #FFFFFF;
+  --input-border: var(--border-subtle);
+  --input-border-focus: rgba(0, 85, 220, 0.8);
+
+  --nav-bg: rgba(255, 255, 255, 0.92);
+  --sidebar-bg: #FFFFFF;
+}
+
+/* Глобальные мелочи */
+
+a {
+  color: inherit;
+}
+
+.border {
+  border: var(--border-width) var(--border-style) currentColor;
+  opacity: 0.28;
+}
+
+.border-interactive {
+  border: var(--border-width) var(--border-style) currentColor;
+  opacity: 0.55;
+}
+
+.border-strong {
+  border: var(--border-width) var(--border-style) currentColor;
+  opacity: 0.8;
+}
+</style>
+  <style>/* landing.css */
+/* =========================
+   FastWeb Landing – landing.css
+   BEM + logical properties for RTL
+   Mobile-first responsive
+   ========================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+[hidden] { display: none !important; }
+
+a { color: inherit; }
+
+img, svg { display: block; }
+
+/* =========================
+   Utility
+   ========================= */
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap; border: 0;
+}
+
+/* =========================
+   Icon (inline SVG <use>)
+   ========================= */
+
+.icon {
+  width: 1em; height: 1em;
+  display: inline-block;
+  vertical-align: -0.125em;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+.icon--sm  { width: 0.875em; height: 0.875em; }
+.icon--lg  { width: 1.25em; height: 1.25em; }
+.icon--xl  { width: 1.5em; height: 1.5em; }
+.icon--2xl { width: 2em; height: 2em; }
+
+/* Brand icons keep their own colors */
+.icon--brand { fill: none; }
+
+/* =========================
+   Container
+   ========================= */
+
+.container {
+  max-width: 1100px;
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .container { padding-inline: var(--space-5); }
+}
+
+/* =========================
+   Typography
+   ========================= */
+
+.text-display {
+  font-size: clamp(2rem, 3.2vw, 3rem);
+  line-height: 1.1;
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.text-title {
+  font-size: var(--fs-xl);
+  line-height: 1.25;
+  font-weight: var(--fw-semibold);
+  margin: 0;
+}
+
+.text-lead {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.text-body {
+  font-size: var(--fs-md);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.text-muted { color: var(--text-muted); }
+.text-center { text-align: center; }
+
+/* =========================
+   Button (from 301-UI pattern)
+   ========================= */
+
+.btn {
+  font-size: var(--fs-control);
+  line-height: var(--lh-control);
+  padding-block: var(--control-pad-y);
+  padding-inline: var(--control-pad-x);
+  min-height: var(--control-min-height);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  white-space: nowrap;
+  border: var(--border-1) solid transparent;
+  border-radius: var(--r-pill);
+  font-weight: var(--fw-medium);
+  font-family: inherit;
+  text-decoration: none;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+  transition: all var(--transition-md);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background: var(--primary);
+  color: var(--btn-text-on-dark);
+}
+.btn--primary:hover {
+  background: var(--primary-hover);
+  border-color: color-mix(in srgb, var(--primary) 35%, transparent);
+}
+
+/* Второй акцент: CTA «Открыть в Telegram» — синий из лого */
+.btn--tg {
+  background: var(--tg);
+  color: var(--btn-text-on-dark);
+}
+.btn--tg:hover {
+  background: var(--tg-hover);
+  border-color: color-mix(in srgb, var(--tg) 35%, transparent);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--text-main);
+  border-color: var(--border-subtle);
+}
+.btn--ghost:hover {
+  background: var(--panel);
+  border-color: var(--border-strong);
+}
+
+.btn--disabled {
+  opacity: 0.5;
+  cursor: default;
+  pointer-events: none;
+}
+
+.btn--lg {
+  font-size: calc(var(--fs-control) * 1.05);
+  padding-block: calc(var(--control-pad-y) * var(--control-scale-lg));
+  padding-inline: calc(var(--control-pad-x) * var(--control-scale-lg));
+}
+
+.btn--sm {
+  font-size: calc(var(--fs-control) * var(--control-scale-sm));
+  padding-block: calc(var(--control-pad-y) * var(--control-scale-sm));
+  padding-inline: calc(var(--control-pad-x) * var(--control-scale-sm));
+}
+
+.btn .icon {
+  width: 1.1em; height: 1.1em;
+}
+
+/* =========================
+   Input / Textarea
+   ========================= */
+
+.input,
+.textarea {
+  font-family: inherit;
+  font-size: var(--fs-control);
+  line-height: var(--lh-control);
+  padding-block: var(--control-pad-y);
+  padding-inline: var(--control-pad-x);
+  min-height: var(--control-min-height);
+  width: 100%;
+  border: var(--border-1) solid var(--input-border);
+  border-radius: var(--r-field);
+  background: var(--input-bg);
+  color: var(--text-main);
+  transition: border-color var(--transition-md), box-shadow var(--transition-md);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 6rem;
+}
+
+.input:focus-visible,
+.textarea:focus-visible {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--brand), transparent 80%);
+}
+
+.input.is-error,
+.textarea.is-error {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--danger), transparent 85%);
+}
+
+/* =========================
+   Field / Label
+   ========================= */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.field__label {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text-muted);
+}
+
+.field__error {
+  font-size: var(--fs-xs);
+  color: var(--danger);
+  min-height: 1.2em;
+}
+
+/* =========================
+   Card
+   ========================= */
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.card__icon {
+  width: 2.5rem; height: 2.5rem;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-size: 1.25rem;
+}
+
+.card__title {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+  margin: 0;
+}
+
+.card__text {
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* =========================
+   Badge
+   ========================= */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  padding: 0.2em 0.6em;
+  border-radius: var(--r-pill);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+/* =========================
+   Section common
+   ========================= */
+
+.section {
+  padding-block: clamp(3rem, 6vw, 5rem);
+}
+
+.section__header {
+  text-align: center;
+  max-width: 600px;
+  margin-inline: auto;
+  margin-block-end: clamp(2rem, 4vw, 3rem);
+}
+
+.section__header .text-title {
+  margin-block-end: var(--space-2);
+}
+
+.section--alt {
+  background: var(--bg-elevated);
+}
+
+/* =========================
+   NAV
+   ========================= */
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  background: var(--nav-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-block-end: 1px solid var(--border-subtle);
+}
+
+.nav__inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-block: var(--space-2);
+  min-height: 3.25rem;
+}
+
+.nav__logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  text-decoration: none;
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-lg);
+  color: var(--text-main);
+  flex-shrink: 0;
+}
+
+.nav__logo .icon {
+  width: 1.75em; height: 1.75em;
+  /* лого многоцветное: тело — currentColor (тема), контур/точки/полоски — свои цвета из SVG */
+}
+
+.nav__links {
+  display: none;
+  align-items: center;
+  gap: var(--space-1);
+  list-style: none;
+  margin: 0; padding: 0;
+}
+
+@media (min-width: 768px) {
+  .nav__links { display: flex; }
+}
+
+.nav__links a {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius);
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.nav__links a:hover {
+  color: var(--text-main);
+  background: var(--bg-soft);
+}
+
+.nav__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-inline-start: auto;
+  min-width: 0; /* позволяем ужиматься, не распирая шапку */
+}
+
+/* На мобиле прячем длинный CTA из шапки — он распирал навбар шире вьюпорта
+   (горизонтальный скролл). В hero своя кнопка + дубль в мобильном меню. */
+.nav__actions a.btn { display: none; }
+@media (min-width: 768px) {
+  .nav__actions a.btn { display: inline-flex; }
+}
+
+/* Language dropdown */
+.lang-dropdown {
+  position: relative;
+}
+
+.lang-dropdown__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  font-size: var(--fs-sm);
+  font-family: inherit;
+  color: var(--text-muted);
+  background: transparent;
+  border: var(--border-1) solid var(--border-subtle);
+  border-radius: var(--r-pill);
+  padding: 0.25em 0.6em;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.lang-dropdown__btn:hover {
+  color: var(--text-main);
+  border-color: var(--border-strong);
+}
+
+.lang-dropdown__menu {
+  position: absolute;
+  inset-inline-end: 0;
+  top: calc(100% + 0.35rem);
+  min-width: 9rem;
+  background: var(--panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-1);
+  z-index: var(--z-dropdown);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.lang-dropdown__menu.is-open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* Items are <a> links to the other host (built from hreflang), not in-page buttons. */
+.lang-dropdown__item {
+  display: block;
+  width: 100%;
+  padding: 0.35em 0.6em;
+  font-size: var(--fs-sm);
+  font-family: inherit;
+  color: var(--text-main);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  text-align: start;
+  text-decoration: none;
+  transition: background var(--transition-fast);
+}
+
+.lang-dropdown__item:hover {
+  background: var(--bg-soft);
+}
+
+.lang-dropdown__item.is-active {
+  color: var(--primary);
+  font-weight: var(--fw-medium);
+}
+
+/* Theme toggle */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem; height: 2rem;
+  background: transparent;
+  border: var(--border-1) solid var(--border-subtle);
+  border-radius: var(--r-pill);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all var(--transition-fast);
+}
+
+.theme-toggle:hover {
+  color: var(--text-main);
+  border-color: var(--border-strong);
+}
+
+/* Mobile menu toggle */
+.nav__mobile-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem; height: 2rem;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+}
+
+@media (min-width: 768px) {
+  .nav__mobile-toggle { display: none; }
+}
+
+/* Mobile nav panel */
+.nav__mobile-menu {
+  display: none;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-block: var(--space-2);
+  border-block-start: 1px solid var(--border-subtle);
+}
+
+.nav__mobile-menu.is-open {
+  display: flex;
+}
+
+@media (min-width: 768px) {
+  .nav__mobile-menu { display: none !important; }
+}
+
+.nav__mobile-menu a {
+  display: block;
+  padding: var(--space-2);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  text-decoration: none;
+  border-radius: var(--radius);
+}
+
+.nav__mobile-menu a:hover {
+  color: var(--text-main);
+  background: var(--bg-soft);
+}
+
+/* CTA-кнопка в мобильном меню: белый текст на синем (перебиваем muted-цвет ссылок меню). */
+.nav__mobile-menu a.btn { color: var(--btn-text-on-dark); }
+.nav__mobile-menu a.btn:hover { color: var(--btn-text-on-dark); background: var(--tg-hover); }
+
+/* =========================
+   HERO
+   ========================= */
+
+.hero {
+  padding-block: clamp(4rem, 10vw, 7rem) clamp(3rem, 6vw, 5rem);
+  text-align: center;
+}
+
+.hero__badge {
+  margin-block-end: var(--space-3);
+}
+
+.hero__title {
+  max-width: 720px;
+  margin-inline: auto;
+  margin-block-end: var(--space-3);
+}
+
+.hero__subtitle {
+  max-width: 560px;
+  margin-inline: auto;
+  margin-block-end: var(--space-5);
+  font-size: clamp(1.15rem, 1rem + 0.75vw, 1.35rem);
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+}
+
+.hero__cta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+/* =========================
+   FEATURES
+   ========================= */
+
+.features__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+@media (min-width: 480px) {
+  .features__grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 1024px) {
+  .features__grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* =========================
+   SEARCH ENGINES
+   ========================= */
+
+.engines__list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(1.5rem, 3vw, 3rem);
+}
+
+.engines__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+}
+
+.engines__item .icon {
+  width: 2.5rem; height: 2.5rem;
+}
+
+/* =========================
+   PRIVACY
+   ========================= */
+
+.privacy__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+  max-width: 960px;
+  margin-inline: auto;
+}
+
+@media (min-width: 480px) {
+  .privacy__grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 1024px) {
+  .privacy__grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.privacy__card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-medium);
+  line-height: 1.4;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.privacy__card:hover {
+  border-color: var(--success);
+}
+
+.privacy__icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: color-mix(in srgb, var(--success) 12%, transparent);
+  color: var(--success);
+}
+
+/* =========================
+   OPEN SOURCE
+   ========================= */
+
+.opensource__content {
+  text-align: center;
+  max-width: 540px;
+  margin-inline: auto;
+}
+
+.opensource__content .text-lead {
+  margin-block-end: var(--space-4);
+}
+
+/* =========================
+   ABOUT
+   ========================= */
+
+.about {
+  max-width: 720px;
+  margin-inline: auto;
+}
+
+.about__title {
+  margin-block-end: var(--space-3);
+}
+
+.about__lead {
+  font-size: var(--fs-md);
+  line-height: 1.7;
+  color: var(--text-muted);
+  margin: 0 0 var(--space-3);
+}
+
+.about__more {
+  font-size: var(--fs-md);
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+.about__more summary {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--primary);
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+}
+
+.about__more summary::-webkit-details-marker { display: none; }
+
+.about__more summary::before {
+  content: '▸';
+  transition: transform var(--transition-fast);
+}
+
+.about__more[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.about__more p {
+  margin: var(--space-3) 0 0;
+}
+
+/* =========================
+   CONTACT
+   ========================= */
+
+.contact__form {
+  max-width: 480px;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.contact__row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+}
+
+@media (min-width: 480px) {
+  .contact__row { grid-template-columns: 1fr 1fr; }
+}
+
+.contact__honeypot {
+  position: absolute;
+  left: -9999px;
+  opacity: 0;
+  height: 0;
+  width: 0;
+  overflow: hidden;
+  pointer-events: none;
+  tab-index: -1;
+}
+
+.contact__status {
+  font-size: var(--fs-sm);
+  min-height: 1.4em;
+  text-align: center;
+}
+
+.contact__status--ok { color: var(--success); }
+.contact__status--error { color: var(--danger); }
+
+/* =========================
+   FOOTER
+   ========================= */
+
+.footer {
+  border-block-start: 1px solid var(--border-subtle);
+  padding-block: var(--space-5);
+}
+
+.footer__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.footer__copy {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  list-style: none;
+  margin: 0; padding: 0;
+}
+
+.footer__links a {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.footer__links a:hover { color: var(--text-main); }
+
+/* =========================
+   WELCOME PAGE
+   ========================= */
+
+.welcome-hero {
+  padding-block-end: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+/* Step flow (horizontal pill indicators) */
+.step-flow {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  background: var(--panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-sm);
+}
+
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  background: var(--primary);
+  color: var(--btn-text-on-dark);
+  border-radius: 50%;
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-xs);
+  flex-shrink: 0;
+}
+
+.step-text {
+  color: var(--text-main);
+  white-space: nowrap;
+}
+
+.step-separator {
+  color: var(--text-muted);
+  font-size: 1rem;
+  user-select: none;
+}
+
+.welcome__steps-indicator {
+  margin-block-end: clamp(2rem, 4vw, 3rem);
+}
+
+.welcome__steps {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .welcome__steps { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Welcome features grid: skip 2-col, go 1→3 */
+.welcome__features-grid {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .welcome__features-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Feature cards on welcome page */
+.welcome__feature-card {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+@media (min-width: 480px) {
+  .welcome__feature-card {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-3);
+  }
+}
+
+.welcome__feature-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.welcome__feature-desc {
+  display: block;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  font-weight: var(--fw-normal);
+  margin-block-start: 0.15em;
+}
+
+.welcome__cta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+/* =========================
+   RTL – automatic via logical properties
+   Only minor fixes needed
+   ========================= */
+
+
+/* =========================
+   Smooth scroll
+   ========================= */
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 4rem;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* =========================
+   PROMO — catchall.in (кросс-промо, два баннера)
+   Цвета знака catchall фиксированы (#5E8BFF / #F75622), это его идентичность;
+   акцент для текста/кнопки пересчитан под тему (AA): тёмная — blue-400 с тёмной
+   надписью, светлая — blue-700 с белой. Свечение фоном — только здесь и в hero.
+   ========================= */
+
+.promo {
+  --ca-blue: #5E8BFF;
+  --ca-orange: #F75622;
+  --ca-accent: var(--ca-blue);
+  --ca-cta-bg: var(--ca-blue);
+  --ca-cta-bg-hover: #7DA1FF;
+  --ca-cta-fg: #0B0D12;
+  --ca-glow-opacity: 0.7;
+
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-5) var(--space-6);
+  padding: var(--space-5) var(--space-6);
+  border-radius: var(--radius-xl);
+  background: var(--panel);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-soft);
+  color: var(--text-main);
+  text-decoration: none;
+  transition: border-color var(--transition-md), box-shadow var(--transition-md);
+}
+
+:root[data-theme="light"] .promo {
+  --ca-accent: #0055DC;
+  --ca-cta-bg: #0055DC;
+  --ca-cta-bg-hover: #0047B8;
+  --ca-cta-fg: #FFFFFF;
+  --ca-glow-opacity: 0.45;
+}
+
+.promo:hover {
+  border-color: color-mix(in srgb, var(--ca-blue) 45%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--ca-blue) 20%, transparent),
+              0 18px 45px color-mix(in srgb, var(--ca-blue) 18%, transparent);
+}
+
+.promo:focus-visible {
+  outline: 2px solid var(--ca-accent);
+  outline-offset: 3px;
+}
+
+.promo__glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: var(--ca-glow-opacity);
+  background:
+    radial-gradient(55% 140% at 10% 50%, color-mix(in srgb, var(--ca-blue) 30%, transparent), transparent 70%),
+    radial-gradient(40% 120% at 34% 110%, color-mix(in srgb, var(--ca-orange) 24%, transparent), transparent 70%);
+}
+
+.promo__mark {
+  position: relative;
+  display: block;
+  width: 9rem;
+}
+
+.promo__mark .icon {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 470 / 292;
+  filter: drop-shadow(0 0 16px color-mix(in srgb, var(--ca-orange) 35%, transparent));
+}
+
+.promo__body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.promo__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  padding: 0.2em 0.6em;
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--ca-accent) 14%, transparent);
+  color: var(--ca-accent);
+}
+
+.promo__title {
+  display: block;
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-semibold);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.promo__text {
+  display: block;
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  color: var(--text-muted);
+  max-width: 56ch;
+}
+
+.promo__text code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.92em;
+  padding: 0.1em 0.4em;
+  border-radius: var(--radius-xs);
+  background: var(--bg-soft);
+  color: var(--text-main);
+}
+
+.promo__cta {
+  position: relative;
+  background: var(--ca-cta-bg);
+  color: var(--ca-cta-fg);
+  font-weight: var(--fw-semibold);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--ca-blue) 30%, transparent);
+}
+
+.promo:hover .promo__cta {
+  background: var(--ca-cta-bg-hover);
+}
+
+@media (max-width: 767px) {
+  .promo {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    padding: var(--space-5) var(--space-4);
+    gap: var(--space-4);
+  }
+  .promo__mark { width: 7rem; }
+  .promo__body { align-items: center; }
+  .promo__cta { width: 100%; }
+  .promo__glow {
+    background:
+      radial-gradient(90% 60% at 50% 0%, color-mix(in srgb, var(--ca-blue) 30%, transparent), transparent 70%),
+      radial-gradient(70% 50% at 50% 100%, color-mix(in srgb, var(--ca-orange) 20%, transparent), transparent 70%);
+  }
+}
+
+/* Компактная полоска в нижнем CTA: знак-плавник + одна строка */
+.promo-strip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  margin-top: var(--space-5);
+  padding: 0.5em 1em 0.5em 0.6em;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--border-subtle);
+  background: var(--panel);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  text-decoration: none;
+  max-width: 100%;
+  transition: border-color var(--transition-md), color var(--transition-md);
+}
+
+.promo-strip b {
+  color: var(--text-main);
+  font-weight: var(--fw-semibold);
+}
+
+.promo-strip__mark {
+  width: 1.75em;
+  height: 1.75em;
+}
+
+.promo-strip:hover {
+  color: var(--text-main);
+  border-color: color-mix(in srgb, #5E8BFF 45%, transparent);
+}
+
+.promo-strip:focus-visible {
+  outline: 2px solid #5E8BFF;
+  outline-offset: 2px;
+}
+</style>
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://mailbot.click/#org","name":"MailBot","url":"https://mailbot.click/","logo":"https://mailbot.click/apple-touch-icon.png","sameAs":["https://t.me/gotemailbot","https://github.com/investblog/mailbot","https://chromewebstore.google.com/detail/mmjdbaijmhogoepflomfceeppgdbeelb"]},{"@type":"WebSite","@id":"https://mailbot.click/#website","name":"MailBot","url":"https://ru.mailbot.click/","inLanguage":"ru","publisher":{"@id":"https://mailbot.click/#org"}},{"@type":"WebApplication","@id":"https://ru.mailbot.click/#app","name":"MailBot","url":"https://ru.mailbot.click/","inLanguage":"ru","applicationCategory":"CommunicationApplication","operatingSystem":"Telegram","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Одноразовая почта прямо в Telegram. Жми /start, получай адрес — всё, что на него придёт, прилетит в чат, OTP-код первой строкой. Адрес живёт 24 часа и протухает сам. Письма не храним.","image":"https://ru.mailbot.click/og/index.ru.png","publisher":{"@id":"https://mailbot.click/#org"},"isPartOf":{"@id":"https://mailbot.click/#website"}}]}</script>
+
+  <!-- Entry point -->
+  <script type="module" crossorigin src="/assets/main-DxqxMdFE.js"></script>  <link rel="canonical" href="https://ru.mailbot.click/">
+  <link rel="alternate" hreflang="x-default" href="https://mailbot.click/">
+  <link rel="alternate" hreflang="en" href="https://mailbot.click/">
+  <link rel="alternate" hreflang="ru" href="https://ru.mailbot.click/">
+</head>
+<body>
+
+<!-- SPRITE:START -->
+<svg xmlns="http://www.w3.org/2000/svg" hidden>
+  <defs>
+    <linearGradient id="chrome-a" x1="11.94" x2="11.94" y1="7.696" y2="16.25" gradientUnits="userSpaceOnUse"><stop stop-color="#86bbe5"/><stop offset="1" stop-color="#1072ba"/></linearGradient>
+  </defs>
+  <symbol id="i-mono-arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-7-7 7 7-7 7"/></symbol>
+  <symbol id="i-mono-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-mono-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-mono-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l4 2"/></symbol>
+  <symbol id="i-mono-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-mono-eye" viewBox="0 0 24 24"><title>eye</title><path fill="currentColor" d="M12 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5 5 5 0 0 1 5-5 5 5 0 0 1 5 5 5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5"/></symbol>
+  <symbol id="i-mono-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></symbol>
+  <symbol id="i-mono-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+  <symbol id="i-mono-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="14" x="3" y="5" rx="2"/><path d="m3 7 9 6 9-6"/></symbol>
+  <symbol id="i-mono-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M3 6h18M3 18h18"/></symbol>
+  <symbol id="i-mono-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79"/></symbol>
+  <symbol id="i-mono-open-in-new" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6m4-3h6v6m-11 5L21 3"/></symbol>
+  <symbol id="i-mono-security" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10"/><path fill="currentColor" d="M10 10h6.364c-.482 3.736-2.982 7.073-6.364 8.11zH3.636V4.818L10 1.991M10 0 1.818 3.636v5.455C1.818 14.136 5.31 18.846 10 20c4.69-1.154 8.182-5.864 8.182-10.91V3.637z"/></symbol>
+  <symbol id="i-mono-shield-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-mono-theme" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></symbol>
+  <symbol id="i-mono-web" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10"/></symbol>
+  <symbol id="i-mono-zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></symbol>
+  <symbol id="i-brand-301" viewBox="0 0 26 26" fill="none"><path fill="#4da3ff" d="M13.295 18.57c-.013 1.026-.074 2.047-.438 3.026-.681 1.828-2.003 2.903-3.893 3.284a8.3 8.3 0 0 1-1.56.146c-2.42.024-4.839.025-7.259.034H0v-5.454h.214c2.22.01 4.442.017 6.662.003a4 4 0 0 0 1.058-.16 1.66 1.66 0 0 0 1.22-1.546c.034-.746.052-1.494.031-2.24-.028-1.03-.769-1.766-1.8-1.803-.854-.03-1.71-.032-2.565-.035-1.536-.005-3.072 0-4.607-.008H0V9.5h.196c2.104 0 4.208.005 6.313-.007.307-.002.628-.053.917-.154.608-.212.98-.81.986-1.5q.003-.573 0-1.146c-.002-.878-.595-1.475-1.467-1.475H.034V.936h.172C3.289.947 6.37.943 9.454.95c.638.001 1.283.03 1.86.35.68.38 1.116.956 1.157 1.743.049.917.039 1.837.04 2.755.001.645-.004 1.29-.036 1.934-.045.886-.27 1.72-.849 2.42-.472.573-1.058.98-1.794 1.146-.01.002-.016.014-.041.036.089.018.167.031.243.05 1.595.404 2.635 1.372 2.984 3.001.128.598.203 1.213.24 1.824.047.785.048 1.574.037 2.361m8.421.051c-.002 1.014-.14 2.011-.596 2.933-.86 1.734-2.254 2.807-4.108 3.298-.848.224-1.712.225-2.59.2v-4.084c.265-.02.528-.026.788-.058 1.106-.136 1.82-.776 2.238-1.78.278-.667.396-1.375.41-2.089.04-1.84.053-3.68.064-5.52a60 60 0 0 0-.035-2.542c-.03-.8-.128-1.591-.436-2.343-.431-1.049-1.256-1.616-2.387-1.628-.429-.005-.857-.001-1.293-.001V.955c.018-.007.033-.018.048-.018.776.01 1.556-.023 2.327.043a5.94 5.94 0 0 1 3.612 1.601 5.94 5.94 0 0 1 1.857 3.404c.066.379.104.767.104 1.151q.01 5.869-.003 11.738zM26 .96v24.087q-.08.008-.152.01-1.155.003-2.312 0-.145 0-.286-.033a.38.38 0 0 1-.31-.325c-.017-.112-.016-.227-.016-.341q.002-11.388-.006-22.775c0-.44.185-.619.62-.621q.94-.004 1.883-.002z"/></symbol>
+  <symbol id="i-brand-catchall-mark" viewBox="-22 -8 278 278" fill="none"><path fill="#5e8bff" d="M114.474 157.112c10.686-1.036 25.542 2.359 35.468 6.215 31.507 12.241 61.616 43.981 75.058 74.728-27.523-20.831-63.486-36.541-98.564-35.012-30.5.309-57.89 14.138-82.623 30.971-6.317 4.3-12.793 9.771-18.813 14.568 3.17-21.197 13.684-46.248 27.98-62.02 16.886-18.633 36.601-27.969 61.494-29.45M31.586 1.418c79.944 9.413 143.926 86.223 172.285 156.89 6.097 15.205 10.383 31.272 14.147 47.191l-.716.58c-6.432-20.547-20.942-45.799-33.839-63.015-22.483-30-52.862-54.053-88.764-65.797-9.184-3.004-17.8-4.51-27.298-5.867-2.261-28.203-15.01-51.19-35.815-69.982"/><path fill="#f75622" d="M64.436 80.443C70.813 80.916 83 84.11 89.163 86.1a174.1 174.1 0 0 1 90.811 68.964c5.035 7.548 8.397 14.135 12.54 22.241-3.664-2.386-7.709-5.453-11.296-8.04a130 130 0 0 0-27.644-14.32 114.15 114.15 0 0 0-88.099 3.523c1.948-5.187 3.94-9.01 5.59-14.69 6.543-22.454 4.221-42.895-6.63-63.334"/><g fill="currentColor" opacity=".9"><circle cx="-9" cy="257" r="5.5"/><circle cx="11" cy="257" r="5.5"/><circle cx="31" cy="257" r="5.5"/><circle cx="51" cy="257" r="5.5"/><circle cx="-9" cy="237" r="5.5"/><circle cx="-9" cy="217" r="5.5"/><circle cx="-9" cy="197" r="5.5"/></g></symbol>
+  <symbol id="i-brand-catchall" viewBox="-40 -6 470 292" fill="none"><path fill="#5e8bff" d="M239.778 84.663c14.73-1.26 44.625 1.035 59.283 3.109 43.479 6.15 92.133 21.629 119.705 57.928-29.138-11.473-64.956-12.668-95.473-7.07-8.93 1.639-17.06 3.847-25.832 6.081-8.05-3.854-14.914-6.686-23.561-8.98-48.312-12.818-104.927 1.881-147.205 26.18-23.126 12.236-40.416 28.252-60.803 43.498A201.2 201.2 0 0 1 .25 238.147a184.9 184.9 0 0 1 39-67.538c47.417-52.375 131.155-82.483 200.528-85.946"/><path fill="#f75622" d="M347.678 144.428a177.8 177.8 0 0 1 71.412 9.338c-8.577 10.314-18.549 17.849-29.784 24.975-35.1-26.235-84.023-5.105-110.616 23.276-11.557 12.334-22.975 22.236-37.29 31.287-19.318 12.928-35.965 19.847-57.963 26.696 6.813-19.806 18.815-39.657 32.747-55.259 33.97-38.041 81.324-57.05 131.494-60.313m-116.204-3.924c16.337-1.216 38.025 2.72 53.642 7.679-26.387 10.603-53.284 24.407-72.208 46.295-12.021-.249-26.319-2.036-38.341-3.45-20.846-2.708-38.536-5.598-58.436-11.911 36.77-24.317 71.304-36.235 115.343-38.613"/><path fill="#5e8bff" d="M158.355 0q3.911.437 7.804 1.023c37.499 5.94 72.735 28.456 98.473 55.517 6.356 6.684 13.033 13.898 18.454 21.362l-5.638-1.17c-25.406-5.248-61.306-.991-86.127 5.025q.18-2.817.282-5.638a94.7 94.7 0 0 0-22.368-64.99c-3.448-4.142-7.283-7.245-10.88-11.129"/><path fill="#f75622" d="M0 66.473q.4-.02.8-.02c8.044-.046 18.902 2.234 26.64 4.451 29.902 8.57 50.1 22.776 71.74 44.363-8.226 4.327-15.592 8.752-23.5 13.624-12.267 7.786-22.072 14.721-32.757 24.407a63 63 0 0 0-.062-1.188C40.86 118.829 24.797 88.476 0 66.473"/><path fill="currentColor" d="M348.252 175.834c10.872-1.474 23.727 1.93 33.082 7.668-16.146 7.036-33.073 10.317-50.535 11.635-11.988.715-20.743.453-32.736-.086 16.108-11.519 30.434-17.607 50.189-19.217"/><g fill="currentColor" opacity=".9"><circle cx="-26" cy="274" r="6"/><circle cx="-4" cy="274" r="6"/><circle cx="18" cy="274" r="6"/><circle cx="40" cy="274" r="6"/><circle cx="62" cy="274" r="6"/><circle cx="-26" cy="252" r="6"/><circle cx="-26" cy="230" r="6"/><circle cx="-26" cy="208" r="6"/><circle cx="-26" cy="186" r="6"/></g></symbol>
+  <symbol id="i-brand-chrome" viewBox="0 0 24 24" fill="none"><path fill="#ef3f36" d="M11.97.002s7.073-.316 10.823 6.768H11.368S9.21 6.701 7.37 9.307c-.53 1.094-1.098 2.221-.46 4.442-.92-1.552-4.881-8.425-4.881-8.425S4.823.282 11.969.002"/><path fill="#fcd900" d="M22.426 17.987s-3.264 6.264-11.293 5.954l5.714-9.859s1.141-1.825-.205-4.718c-.684-1.005-1.382-2.057-3.63-2.617 1.808-.016 9.761 0 9.761 0s2.98 4.933-.347 11.24"/><path fill="#61bc5b" d="M1.563 18.036s-3.813-5.948.473-12.722c.988 1.71 5.71 9.859 5.71 9.859s1.02 1.898 4.204 2.18c1.213-.088 2.476-.164 4.09-1.821-.89 1.568-4.88 8.422-4.88 8.422s-5.781.105-9.597-5.918"/><path fill="#5ab055" d="m11.13 24 1.607-6.682s1.766-.139 3.247-1.757A4696 4696 0 0 1 11.13 24"/><path fill="#fff" d="M6.586 12.075c0-2.946 2.397-5.335 5.354-5.335 2.956 0 5.354 2.39 5.354 5.335 0 2.946-2.398 5.335-5.354 5.335-2.957-.003-5.354-2.39-5.354-5.335"/><path fill="url(#chrome-a)" d="M7.482 12.075a4.45 4.45 0 0 1 4.458-4.441c2.46 0 4.458 1.987 4.458 4.441a4.45 4.45 0 0 1-4.458 4.442c-2.46 0-4.458-1.99-4.458-4.442"/><path fill="#eaca05" d="m22.77 6.75-6.617 1.934s-.999-1.46-3.145-1.934c1.862-.01 9.762 0 9.762 0"/><path fill="#df3a32" d="M6.781 13.506C5.851 11.9 2.03 5.323 2.03 5.323l4.9 4.83s-.502 1.032-.313 2.508z"/></symbol>
+  <symbol id="i-brand-edge" viewBox="0 0 24 24" fill="none"><path fill="#1a5e9a" d="M22.108 18.459c-2.757 4.245-7.222 5.403-8.987 5.293-10.53-.497-8.931-14.445-2.59-14.39-4.522 2.867 1.653 12.35 10.75 8.656.937-.662 1.102.165.827.44"/><path fill="#3088c8" d="M15.05 11.898c.993-4.52-1.708-7.442-7.111-7.442S0 9.528 0 12.119c0 6.836 6.891 13.948 15.823 11.192-7.388 2.15-11.798-6.396-8.05-11.578 2.537-3.639 6.782-3.749 7.278.165m5.514-8.6h.055Z"/><path fill="#4db860" d="M.055 11.788C.717-2.987 21.005-3.814 23.927 8.976c.772 5.9-4.741 8.215-9.152 6.34-2.315-1.433 1.434-1.102-.165-5.458C11.964 3.684.772 4.18.055 11.788"/></symbol>
+  <symbol id="i-brand-firefox" viewBox="0 0 24 24" fill="none"><path fill="#2179a6" d="M11.962 23.616c6.354 0 11.506-5.287 11.506-11.808C23.468 5.288 18.316 0 11.962 0 5.606 0 .455 5.287.455 11.808c0 6.52 5.152 11.808 11.507 11.808"/><path fill="#195d80" d="M23.367 13.354a3 3 0 0 1-.187.133c.102-.276.194-.63.27-1.04q.018-.317.018-.64c0-2.465-.738-4.754-1.997-6.648-1.14-1.348-2.692-2.505-4.75-3.087 2.214 1.497 3.041 2.768 3.564 3.9-.592-.621-1.605-1.269-2.289-1.323 1.026.783 2.743 3.104 2.56 6.621-.263-.566-.745-1.453-1.087-1.763.369 3.454.046 4.196-.177 5.113-.05-.422-.198-.738-.283-.93 0 0-.04 1.079-.723 2.617-.518 1.164-1.053 1.524-1.29 1.484-.064-.005-.098-.033-.098-.036.017-.15.032-.309-.007-.41 0 0-.218.078-.36.281q-.083.124-.226.237c-.017.014.156-.226.143-.215a3 3 0 0 0-.268.251c-.335.357-.638.753-.795.641.146-.046.264-.237.295-.425-.131.094-.466.35-1.216.465-.307.047-1.613.29-3.35-.6.254-.03.633-.121.922.054-.29-.323-.987-.256-1.487-.418-.436-.142-1.005-.769-1.331-1.086 1.336.336 2.755.094 3.575-.481.83-.582 1.32-1.006 1.761-.906s.733-.352.39-.755c-.34-.402-1.17-.943-2.297-.653-.863.221-1.598.932-2.81.438a3 3 0 0 1-.227-.104c-.077-.04.254.047.172-.002-.233-.088-.657-.287-.762-.363-.017-.013.176.036.156.023-1.15-.698-1.075-1.256-1.075-1.602 0-.276.163-.65.47-.825.166.06.27.116.27.116s-.077-.121-.126-.18l.035-.01c.135.047.617.25.874.46.306-.586.077-1.556.046-1.616v-.003c.065-.298 1.796-1.228 1.925-1.326a1.65 1.65 0 0 0 .476-.587c.083-.154.143-.374.127-.69-.012-.228-.145-.368-1.99-.352-.504.004-.832-.297-1.03-.584l-.109-.175a2 2 0 0 1-.095-.208c.22-.82.955-1.986 1.62-2.342-1.227-.395-2.728.73-3.154 1.335l-.005.005c-1.078-.275-1.993-.208-2.759.044-.568-.283-.929-.876-1.133-1.425-.52.574-.988 1.2-1.39 1.871-.047.38-.071.83-.035 1.349 0 .067.01.132.007.192-.29.41-.48.762-.553.936-.354.708-.717 1.797-1.01 3.488 0 0 .197-.637.59-1.36-.281.884-.502 2.245-.393 4.265l.02.086c.023-.194.086-.653.21-1.234a11.14 11.14 0 0 0 1.473 5.023c.1.175.22.38.363.605 2.104 2.815 5.413 4.632 9.137 4.632 5.843 0 10.666-4.471 11.405-10.261"/><path fill="#e78244" d="M20.683 18.807c.66-1.275 1.557-2.022 2.043-2.904.644-1.174 1.861-4.473.944-7.134.42 1.666.289 3.359-1.053 4.209.434-1.174.706-3.75.259-6.07-.291-1.507-1.211-2.858-1.811-3.28.552.425.996 1.946.984 2.645-1.155-1.996-3.04-3.904-5.89-4.71 2.213 1.497 3.04 2.769 3.564 3.9-.592-.62-1.606-1.268-2.29-1.322 1.026.782 2.744 3.104 2.56 6.62-.262-.566-.744-1.453-1.086-1.763.368 3.455.046 4.196-.178 5.114-.05-.422-.197-.739-.283-.931 0 0-.039 1.08-.723 2.617-.518 1.165-1.053 1.525-1.29 1.484-.064-.004-.098-.033-.098-.035.017-.151.033-.31-.006-.41 0 0-.219.078-.36.28a1 1 0 0 1-.227.238c-.017.013.156-.227.143-.216a3 3 0 0 0-.268.252c-.335.357-.638.753-.795.64.147-.045.264-.237.296-.424-.132.094-.467.35-1.217.465-.307.047-1.612.29-3.349-.6.254-.03.632-.122.921.053-.289-.323-.986-.256-1.487-.418-.435-.141-1.004-.768-1.33-1.085 1.335.336 2.754.093 3.575-.482.829-.581 1.32-1.006 1.76-.905s.734-.353.391-.755c-.341-.403-1.17-.944-2.297-.654-.863.222-1.599.932-2.81.438a3 3 0 0 1-.227-.103c-.078-.04.253.047.171-.003-.233-.088-.656-.287-.761-.362-.017-.013.175.036.155.023-1.15-.698-1.075-1.256-1.075-1.602 0-.277.164-.65.471-.826.166.06.269.116.269.116s-.077-.12-.125-.18l.034-.01c.136.047.617.25.875.46.305-.586.077-1.556.045-1.616l.001-.003c.065-.297 1.795-1.227 1.925-1.325a1.65 1.65 0 0 0 .476-.588c.082-.154.142-.373.126-.69-.012-.228-.144-.368-1.99-.352-.503.004-.832-.297-1.03-.583l-.108-.176a2 2 0 0 1-.095-.208c.22-.82.955-1.986 1.619-2.342-1.227-.395-2.727.73-3.154 1.335l-.004.005c-1.079-.275-1.994-.208-2.76.043-.937-.465-1.312-1.778-1.347-2.34-.528.374-1.014 1.884-1.078 2.185a7.2 7.2 0 0 0-.133 1.951c0 .067.01.132.008.192-.29.41-.48.763-.554.936C.655 8.31.293 9.398 0 11.09c0 0 .197-.637.59-1.359-.29.91-.517 2.323-.384 4.444.006-.07.066-.606.22-1.328.076 1.41.402 3.144 1.473 5.023.816 1.434 2.967 4.764 8.364 6.01a2.6 2.6 0 0 1-.96-.526s2.015.664 3.486.608c-.46-.082-.552-.31-.552-.31s5.23.303 7.038-2.227c-.618.742-2.183.951-2.776.958.902-.85 2.894-.83 5.053-3.009 1.184-1.195 1.312-2.104 1.441-2.954-.198 1.113-1.231 1.78-2.31 2.388"/><path fill="#144f66" d="M11.676 7.516c.083-.21.178-.701-.096-.804a2.6 2.6 0 0 0-.793-.089c.122.032.474.103.566.271.174.322-.238 1.093-.298 1.258.188 0 .538-.43.62-.636"/></symbol>
+  <symbol id="i-brand-github" viewBox="0 0 20 20" fill="none"><path fill="currentColor" d="M10 0a10 10 0 0 0-3.162 19.487c.5.088.687-.212.687-.475 0-.237-.012-1.025-.012-1.862-2.513.462-3.163-.613-3.363-1.175a3.64 3.64 0 0 0-1.025-1.413c-.35-.187-.85-.65-.013-.662a2 2 0 0 1 1.538 1.025 2.135 2.135 0 0 0 2.912.825 2.1 2.1 0 0 1 .638-1.338c-2.225-.25-4.55-1.112-4.55-4.937a3.9 3.9 0 0 1 1.025-2.688 3.6 3.6 0 0 1 .1-2.65s.837-.262 2.75 1.025a9.43 9.43 0 0 1 5 0c1.912-1.3 2.75-1.025 2.75-1.025a3.6 3.6 0 0 1 .1 2.65A3.87 3.87 0 0 1 16.4 9.475c0 3.837-2.338 4.687-4.562 4.937a2.37 2.37 0 0 1 .674 1.85c0 1.338-.012 2.413-.012 2.75 0 .263.187.575.687.475A10.005 10.005 0 0 0 10 0"/></symbol>
+  <symbol id="i-brand-mailbot" viewBox="0 0 250 250" fill="none"><path fill="#355ff5" d="M225.992 133.65c-.68-5.88-1.12-12.11-.98-18.02.09-4 .38-7.98.86-11.95.19-1.66 1.09-5.71.89-7.09-1.65-11.4-3.36-23.37-9.08-33.58-14.93-26.68-49.62-30.98-77.14-32.34-8.09-.4-16.86-.6-24.9-.27-24.34.77-57.77 3.04-75.55 21.95-9.06 9.63-13.29 22.57-15.11 35.41-.22 1.57-1.15 7.19-1.04 8.5.21 2.24.85 5.93 1.13 8.39.62 5.49.89 11.01.79 16.53-.07 5.18-.45 10.36-1.14 15.5-.24 1.77-1.28 6.55-1.18 8.1 1.18 16.87 5.1 35.25 18.12 47.13 14.59 13.38 35.26 17.45 54.36 19.23q6.915.69 13.86.99c6.16.23 12.1.12 18.14.29 3.23 2.86 4.63 3.99 8.81 5.52 5.21 1.55 10.49 2.17 15.97 1.64 5.85-.57 12.93-2.01 16.95-6.72.88-1.03.92-3.53 2.3-4.22 1.69-.56 4-.98 5.76-1.42 2.79-.71 5.55-1.53 8.28-2.47 18.21-6.26 31.67-17.8 36.89-36.77 2.16-7.86 3.72-17.87 4.11-26.23.11-2.24-1.1-5.73-1.1-8.1m-31.15 49.11c-.04.18-.1.15-.3.23-.77-.14-1.37-.78-1.83-1.39-1.49-1.97-2.77-3.98-4.55-5.72-10.88 14.04-26.1 20.92-42.72 25.74-1.96.51-3.94.97-5.93 1.38-3.17.64-11.09 2.92-11.74-2.25-.7-5.39 4.09-5.32 7.8-5.99 15.91-2.91 35.99-10.65 45.64-24.42-.95-.49-2.27-.93-2.51-2.02.06-.53.15-.57.5-1 .39-.04.62-.05 1.01.06 5.3 1.39 10.12 5.51 12.92 10.16.7 1.17 2.05 3.73 1.71 5.22m2.71-46.65c-13.17 13.79-48.05 17.31-66.43 17.76l-.75.03c-20.97.69-61.06-2.02-76.7-16.79-7.19-6.79-8.95-24.39-9.24-33.86-.35-11.22.42-34 8.65-42.67 2.94-3.09 6.74-5.35 10.57-7.19 16.41-7.87 37.54-9.65 55.59-10.04l.49-.02c21.36-.76 60.98 1.99 77.02 17.09 1.31 1.23 2.47 2.62 3.35 4.19 4.38 7.79 5.72 21.75 5.98 30.54.31 10.54-.87 32.92-8.53 40.96"/><path fill="#355ff5" d="M194.842 182.761c-.04.18-.1.15-.3.23-.77-.14-1.37-.78-1.83-1.39-1.49-1.97-2.77-3.98-4.55-5.72-10.88 14.04-26.1 20.92-42.72 25.74-1.96.51-3.94.97-5.93 1.38-3.17.64-11.09 2.92-11.74-2.25-.7-5.39 4.09-5.32 7.8-5.99 15.91-2.91 35.99-10.65 45.64-24.42-.95-.49-2.27-.93-2.51-2.02.06-.53.15-.57.5-1 .39-.04.62-.05 1.01.06 5.3 1.39 10.12 5.51 12.92 10.16.7 1.17 2.05 3.73 1.71 5.22"/><path fill="currentColor" d="M101.492 106.48c-8.25 1.27-15.96-4.38-17.23-12.63-1.27-8.24 4.36-15.95 12.6-17.25v.03c8.25-1.3 15.98 4.35 17.25 12.6 1.27 8.24-4.38 15.98-12.62 17.25m50.63 4.97c-11.75 1.26-22.31-7.23-23.62-18.96-1.32-11.75 7.11-22.35 18.84-23.73 11.83-1.4 22.53 7.11 23.85 18.95 1.32 11.83-7.24 22.49-19.07 23.74"/><path fill="#355ff5" d="M229.942 97.64c.59-.02 1.18-.04 1.78-.04 15.36-.12 21.6 17.85 16.58 30.34-1.17 2.93-2.61 4.97-4.83 7.19-3.91 3.68-8.36 4.59-13.56 4.48-2.27-10.44-2.44-24.09-1.19-34.74.23-1.98.63-5.36 1.23-7.22h-.01zm-212.62.07c1.21-.12 2.48-.05 3.69.06.56 2.14 1.07 6.36 1.27 8.59.89 10.01 1.07 23.4-1.08 33.26-5.27.09-8.1 0-12.6-2.75-.59-.4-1.15-.83-1.69-1.29-8.79-7.43-9.04-23.63-1.64-32.05 3.52-4.01 6.9-5.41 12.06-5.81h-.01z"/><path fill="currentColor" d="M194.842 182.75c-.04.19-.1.16-.3.24-.76-.15-1.37-.78-1.83-1.39-1.49-1.97-2.76-3.99-4.55-5.73-10.87 14.04-26.1 20.92-42.71 25.74-1.97.51-3.94.97-5.93 1.38-3.18.63-11.09 2.92-11.74-2.25-.69-5.39 4.09-5.32 7.81-6 15.9-2.9 35.98-10.65 45.63-24.42-.95-.49-2.27-.93-2.51-2.02.06-.53.15-.57.5-1h-.01c.4-.04.64-.05 1.03.06 5.29 1.39 10.12 5.51 12.92 10.16.7 1.17 2.05 3.73 1.71 5.22z"/></symbol>
+  <symbol id="i-brand-telegram" viewBox="0 0 24 24" fill="currentColor"><path d="M21.94 4.78a1.2 1.2 0 0 0-1.27-.18L3.4 11.36c-.86.34-.83 1.58.05 1.87l4.3 1.43 1.62 5.02c.2.6.96.78 1.4.32l2.4-2.46 4.34 3.2c.5.37 1.22.1 1.36-.5l3.1-14.3a1.2 1.2 0 0 0-.43-1.18ZM9.6 14.2l8.1-5.02-6.55 6.16a1 1 0 0 0-.3.58l-.26 1.95-1-3.67Z"/></symbol>
+</svg>
+<!-- SPRITE:END -->
+
+<!-- ============================ NAV ============================ -->
+<nav class="nav" aria-label="Main navigation">
+  <div class="container nav__inner">
+    <a href="/" class="nav__logo" aria-label="MailBot">
+      <svg class="icon" aria-hidden="true"><use href="#i-brand-mailbot"></use></svg>
+      MailBot
+    </a>
+
+    <ul class="nav__links">
+      <li><a href="#how" data-i18n="nav.how">Как работает</a></li>
+      <li><a href="#features" data-i18n="nav.features">Возможности</a></li>
+      <li><a href="#faq" data-i18n="nav.faq">Вопросы</a></li>
+    </ul>
+
+    <div class="nav__actions">
+      <!-- Language -->
+      <div class="lang-dropdown" id="lang-dropdown">
+        <button class="lang-dropdown__btn" type="button" aria-expanded="false" aria-haspopup="true" id="lang-toggle">
+          <svg class="icon icon--sm" aria-hidden="true"><use href="#i-mono-web"></use></svg>
+          <span data-lang-label>RU</span>
+          <svg class="icon icon--sm" aria-hidden="true"><use href="#i-mono-chevron-down"></use></svg>
+        </button>
+        <!-- Real links to each locale's own host; the build regenerates this block from the
+             hreflang set (scripts/lib/site.mjs langMenuHtml), so it cannot disagree with it. -->
+        <div class="lang-dropdown__menu" id="lang-menu" role="menu">
+          <a class="lang-dropdown__item" href="https://mailbot.click/" hreflang="en" lang="en" role="menuitem">English</a>
+          <a class="lang-dropdown__item is-active" href="https://ru.mailbot.click/" hreflang="ru" lang="ru" role="menuitem">Русский</a>
+        </div>
+      </div>
+
+      <!-- Theme -->
+      <button class="theme-toggle" type="button" id="theme-toggle" aria-label="Переключить тему" data-i18n-aria="nav.theme">
+        <svg class="icon" id="theme-icon-light" aria-hidden="true"><use href="#i-mono-theme"></use></svg>
+        <svg class="icon" id="theme-icon-dark" hidden aria-hidden="true"><use href="#i-mono-moon"></use></svg>
+      </button>
+
+      <!-- Primary CTA -->
+      <a href="https://t.me/gotemailbot" class="btn btn--tg" target="_blank" rel="noopener">
+        <svg class="icon icon--brand" aria-hidden="true"><use href="#i-brand-telegram"></use></svg>
+        <span data-i18n="nav.cta">Открыть в Telegram</span>
+      </a>
+
+      <!-- Mobile menu toggle -->
+      <button class="nav__mobile-toggle" type="button" id="mobile-toggle" aria-label="Menu">
+        <svg class="icon icon--lg" aria-hidden="true"><use href="#i-mono-menu"></use></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="nav__mobile-menu" id="mobile-menu">
+      <a href="#how" data-i18n="nav.how">Как работает</a>
+      <a href="#features" data-i18n="nav.features">Возможности</a>
+      <a href="#faq" data-i18n="nav.faq">Вопросы</a>
+      <a href="https://t.me/gotemailbot" class="btn btn--tg" target="_blank" rel="noopener" style="margin-top: var(--space-2);">
+        <svg class="icon icon--brand" aria-hidden="true"><use href="#i-brand-telegram"></use></svg>
+        <span data-i18n="nav.cta">Открыть в Telegram</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============================ HERO ============================ -->
+<header class="hero">
+  <div class="container">
+    <div class="hero__badge">
+      <span class="badge">
+        <svg class="icon icon--sm" aria-hidden="true"><use href="#i-mono-zap"></use></svg>
+        <span data-i18n="hero.badge">Бесплатно · Без регистрации</span>
+      </span>
+    </div>
+    <h1 class="text-display hero__title" data-i18n="hero.title">Одноразовая почта прямо в Telegram</h1>
+    <p class="text-lead hero__subtitle" data-i18n="hero.subtitle">Жми /start, получай адрес, вставляй куда угодно. Всё пришедшее прилетит в чат — OTP-код первой строкой. Адрес живёт 24 часа и протухает сам.</p>
+
+    <div class="hero__cta">
+      <a href="https://t.me/gotemailbot" class="btn btn--tg btn--lg" target="_blank" rel="noopener">
+        <svg class="icon icon--brand" aria-hidden="true"><use href="#i-brand-telegram"></use></svg>
+        <span data-i18n="hero.cta_primary">Открыть в Telegram</span>
+      </a>
+      <a href="#how" class="btn btn--ghost btn--lg">
+        <span data-i18n="hero.cta_secondary">Как это работает</span>
+        <svg class="icon" aria-hidden="true"><use href="#i-mono-arrow-right"></use></svg>
+      </a>
+    </div>
+
+    <div class="step-flow" style="margin-top: var(--space-6);">
+      <span class="step-pill"><span class="step-number">1</span><span class="step-text" data-i18n="hero.step1">/start</span></span>
+      <span class="step-separator">→</span>
+      <span class="step-pill"><span class="step-number">2</span><span class="step-text" data-i18n="hero.step2">вставь адрес</span></span>
+      <span class="step-separator">→</span>
+      <span class="step-pill"><span class="step-number">3</span><span class="step-text" data-i18n="hero.step3">код в чате</span></span>
+    </div>
+  </div>
+</header>
+
+<!-- ========================= HOW IT WORKS ========================= -->
+<section class="section" id="how">
+  <div class="container">
+    <div class="section__header">
+      <h2 class="text-title" data-i18n="how.title">Три шага, ноль настройки</h2>
+      <p class="text-lead" data-i18n="how.subtitle">Без регистрации, без приложения, без ящика, который надо вести. Только бот.</p>
+    </div>
+    <div class="features__grid">
+      <article class="card">
+        <div class="card__icon"><svg class="icon"><use href="#i-brand-telegram"></use></svg></div>
+        <h3 class="card__title" data-i18n="how.s1.title">Жми /start</h3>
+        <p class="card__text" data-i18n="how.s1.text">Открой бота и отправь /start. Сразу получишь свежий адрес вида x7k2p9a1@mailbot.click.</p>
+      </article>
+      <article class="card">
+        <div class="card__icon"><svg class="icon"><use href="#i-mono-mail"></use></svg></div>
+        <h3 class="card__title" data-i18n="how.s2.title">Используй где угодно</h3>
+        <p class="card__text" data-i18n="how.s2.text">Вставь адрес в любую форму регистрации или входа, которая шлёт код или ссылку на почту.</p>
+      </article>
+      <article class="card">
+        <div class="card__icon"><svg class="icon"><use href="#i-mono-zap"></use></svg></div>
+        <h3 class="card__title" data-i18n="how.s3.title">Код прилетает в чат</h3>
+        <p class="card__text" data-i18n="how.s3.text">Письмо приходит в чат Telegram — OTP-код выделен первой строкой, готов к копированию.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= FEATURES ========================= -->
+<section class="section section--alt" id="features">
+  <div class="container">
+    <div class="section__header">
+      <h2 class="text-title" data-i18n="features.title">Сделано, чтобы ловить коды</h2>
+      <p class="text-lead" data-i18n="features.subtitle">Сфокусированный инструмент, а не ещё один ящик.</p>
+    </div>
+    <div class="features__grid">
+      <article class="card">
+        <div class="card__icon"><svg class="icon"><use href="#i-mono-zap"></use></svg></div>
+        <h3 class="card__title" data-i18n="features.f1.title">OTP первой строкой</h3>
+        <p class="card__text" data-i18n="features.f1.text">Скоринг вытаскивает код подтверждения и ставит его первым — тап для копирования. Не надо рыться в письме.</p>
+      </article>
+      <article class="card">
+        <div class="card__icon"><svg class="icon"><use href="#i-mono-clock"></use></svg></div>
+        <h3 class="card__title" data-i18n="features.f2.title">Адрес на 24 часа</h3>
+        <p class="card__text" data-i18n="features.f2.text">Каждый адрес живёт сутки и протухает сам. Нужен новый — просто жми «Новый адрес».</p>
+      </article>
+      <article class="card">
+        <div class="card__icon"><svg class="icon"><use href="#i-mono-eye"></use></svg></div>
+        <h3 class="card__title" data-i18n="features.f3.title">Ничего не храним</h3>
+        <p class="card__text" data-i18n="features.f3.text">Письма доставляются в чат и не хранятся у нас. Сообщение остаётся в Telegram, у тебя.</p>
+      </article>
+      <article class="card">
+        <div class="card__icon"><svg class="icon"><use href="#i-mono-shield-check"></use></svg></div>
+        <h3 class="card__title" data-i18n="features.f4.title">Приватность по умолчанию</h3>
+        <p class="card__text" data-i18n="features.f4.text">Держи настоящий ящик чистым и подальше от спам-баз. Для разовых регистраций — одноразовый адрес.</p>
+      </article>
+      <article class="card">
+        <div class="card__icon"><svg class="icon"><use href="#i-mono-web"></use></svg></div>
+        <h3 class="card__title" data-i18n="features.f5.title">Быстро, на edge</h3>
+        <p class="card__text" data-i18n="features.f5.text">Работает целиком на edge Cloudflare. Код обычно в чате через секунды после прихода письма.</p>
+      </article>
+      <article class="card">
+        <div class="card__icon"><svg class="icon"><use href="#i-mono-check"></use></svg></div>
+        <h3 class="card__title" data-i18n="features.f6.title">Без регистрации, бесплатно</h3>
+        <p class="card__text" data-i18n="features.f6.text">Ни аккаунта, ни почты, ни пароля. Открой бота в Telegram — и готово.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== PROMO: catchall.in (wide banner) ==================== -->
+<section class="section section--promo" aria-labelledby="promo-title">
+  <div class="container">
+    <a class="promo" href="https://catchall.in/?utm_source=ru.mailbot.click&amp;utm_medium=banner&amp;utm_campaign=landing" target="_blank" rel="noopener" data-i18n-href="promo.url">
+      <span class="promo__glow" aria-hidden="true"></span>
+      <span class="promo__mark" aria-hidden="true">
+        <svg class="icon icon--brand" aria-hidden="true"><use href="#i-brand-catchall"></use></svg>
+      </span>
+      <span class="promo__body">
+        <span class="promo__eyebrow" data-i18n="promo.eyebrow">Новое · от той же команды</span>
+        <span class="promo__title" id="promo-title" data-i18n="promo.title">Нужна OTP-почта на своём домене?</span>
+        <span class="promo__text" data-i18n-html="promo.text">Catchall поднимает catch-all ящик на поддомене вашего домена — <code>anything@mail.yourdomain.com</code>. Ваши инструменты забирают коды по POP3S / IMAPS. $10 за домен на 30 дней.</span>
+      </span>
+      <span class="btn promo__cta">
+        <span data-i18n="promo.cta">Открыть Catchall</span>
+        <svg class="icon" aria-hidden="true"><use href="#i-mono-open-in-new"></use></svg>
+      </span>
+    </a>
+  </div>
+</section>
+
+<!-- ========================= FAQ ========================= -->
+<section class="section" id="faq">
+  <div class="container">
+    <div class="section__header">
+      <h2 class="text-title" data-i18n="faq.title">Частые вопросы</h2>
+    </div>
+    <div class="features__grid">
+      <article class="card">
+        <h3 class="card__title" data-i18n="faq.q1.q">Это правда бесплатно?</h3>
+        <p class="card__text" data-i18n="faq.q1.a">Да. Ни аккаунта, ни оплаты, ни регистрации. Открой бота и пользуйся.</p>
+      </article>
+      <article class="card">
+        <h3 class="card__title" data-i18n="faq.q2.q">Что будет через 24 часа?</h3>
+        <p class="card__text" data-i18n="faq.q2.a">Адрес протухает и перестаёт принимать почту. Уже доставленные письма остаются в чате Telegram.</p>
+      </article>
+      <article class="card">
+        <h3 class="card__title" data-i18n="faq.q3.q">Вы храните мои письма?</h3>
+        <p class="card__text" data-i18n="faq.q3.a">Нет. Письмо разбирается на edge и пересылается в чат. Содержимое у нас не хранится.</p>
+      </article>
+      <article class="card">
+        <h3 class="card__title" data-i18n="faq.q4.q">Можно отправлять письма с этого адреса?</h3>
+        <p class="card__text" data-i18n="faq.q4.a">Нет — он только на приём, заточен под ловлю одноразовых кодов и ссылок-подтверждений.</p>
+      </article>
+      <article class="card">
+        <h3 class="card__title" data-i18n="faq.q5.q">Можно ли использовать для важных аккаунтов?</h3>
+        <p class="card__text" data-i18n="faq.q5.a">Нет. Это одноразовый адрес: временный по своей сути. Для важного используй настоящий ящик.</p>
+      </article>
+      <article class="card">
+        <h3 class="card__title" data-i18n="faq.q6.q">А если код не распознался?</h3>
+        <p class="card__text" data-i18n="faq.q6.a">Полное письмо всё равно придёт в чат — код будет виден в теле. Выделяем его, только когда уверены.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= BOTTOM CTA ========================= -->
+<section class="section section--alt">
+  <div class="container text-center">
+    <h2 class="text-title" data-i18n="cta.title">Возьми одноразовый адрес сейчас</h2>
+    <p class="text-lead" data-i18n="cta.text">Это один тап. Остальное сделает бот.</p>
+    <div class="hero__cta" style="justify-content: center; margin-top: var(--space-6);">
+      <a href="https://t.me/gotemailbot" class="btn btn--tg btn--lg" target="_blank" rel="noopener">
+        <svg class="icon icon--brand" aria-hidden="true"><use href="#i-brand-telegram"></use></svg>
+        <span data-i18n="cta.button">Открыть в Telegram</span>
+      </a>
+    </div>
+    <div class="hero__cta" style="justify-content: center; margin-top: var(--space-4);">
+      <a href="https://chromewebstore.google.com/detail/mmjdbaijmhogoepflomfceeppgdbeelb?utm_source=mailbot.click" class="btn btn--ghost" target="_blank" rel="noopener">
+        <svg class="icon icon--brand" aria-hidden="true"><use href="#i-brand-chrome"></use></svg>
+        <span data-i18n="cta.chrome">Установить в Chrome</span>
+      </a>
+      <a href="https://microsoftedge.microsoft.com/addons/detail/mailbot-%E2%80%94-disposable-emai/ofaahjfcjogpimmiocambhenlmagdhgj?utm_source=mailbot.click" class="btn btn--ghost" target="_blank" rel="noopener">
+        <svg class="icon icon--brand" aria-hidden="true"><use href="#i-brand-edge"></use></svg>
+        <span data-i18n="cta.edge">Установить в Edge</span>
+      </a>
+      <a href="https://addons.mozilla.org/firefox/addon/mailbot-disposable-email/" class="btn btn--ghost" target="_blank" rel="noopener">
+        <svg class="icon icon--brand" aria-hidden="true"><use href="#i-brand-firefox"></use></svg>
+        <span data-i18n="cta.firefox">Установить в Firefox</span>
+      </a>
+    </div>
+    <!-- PROMO: catchall.in (compact strip) -->
+    <a class="promo-strip" href="https://catchall.in/?utm_source=ru.mailbot.click&amp;utm_medium=strip&amp;utm_campaign=landing" target="_blank" rel="noopener" data-i18n-href="promo.strip_url">
+      <svg class="icon icon--brand promo-strip__mark" aria-hidden="true"><use href="#i-brand-catchall-mark"></use></svg>
+      <span data-i18n-html="promo.strip"><b>Catchall</b> — OTP-почта на своём домене</span>
+      <svg class="icon icon--sm" aria-hidden="true"><use href="#i-mono-arrow-right"></use></svg>
+    </a>
+  </div>
+</section>
+
+<!-- ========================= FOOTER ========================= -->
+<footer class="footer">
+  <div class="container footer__inner">
+    <span class="footer__copy" data-i18n="footer.copy">© 2026 MailBot</span>
+    <div class="footer__links">
+      <a href="https://t.me/gotemailbot" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:.4em">
+        <svg class="icon icon--sm" aria-hidden="true"><use href="#i-brand-telegram"></use></svg>
+        <span data-i18n="footer.telegram">Бот в Telegram</span>
+      </a>
+      <a href="https://github.com/investblog/mailbot" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:.4em">
+        <svg class="icon icon--sm" aria-hidden="true"><use href="#i-brand-github"></use></svg>
+        <span data-i18n="footer.source">Исходники</span>
+      </a>
+      <a href="https://301.ru" target="_blank" rel="noopener sponsored" data-i18n-href="footer.sponsor_url" style="display:inline-flex;align-items:center;gap:.4em">
+        <svg class="icon icon--sm" aria-hidden="true"><use href="#i-brand-301"></use></svg>
+        <span data-i18n="footer.sponsor">Спонсор — 301</span>
+      </a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
